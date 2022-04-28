@@ -17,7 +17,7 @@ const refs = {
 };
 
 let deltaTime = 0;
-refs.startBtn.disabled = true;
+setDisabled(refs.startBtn);
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -27,37 +27,46 @@ const options = {
   onClose(selectedDates) {
     deltaTime = new Date(selectedDates).getTime() - new Date().getTime();
     if (deltaTime <= 0) {
-      refs.startBtn.disabled = true;
+      setDisabled(refs.startBtn);
       Notiflix.Notify.failure('Please choose a date in the future');
     } else {
-      refs.startBtn.disabled = false;
+      removeDisabled(refs.startBtn);
     }
   },
 };
 
 flatpickr('input', options);
 
+function timerValues(days, hours, minutes, seconds) {
+  refs.timerDays.textContent = days;
+  refs.timerHours.textContent = hours;
+  refs.timerMinutes.textContent = minutes;
+  refs.timerSecs.textContent = seconds;
+}
+
 function countTime() {
   let timerId = setInterval(() => {
     deltaTime = deltaTime - 1000;
     const { days, hours, minutes, seconds } = convertMs(deltaTime);
     console.log(`${days}:${hours}:${minutes}:${seconds}`);
-
-    refs.timerDays.textContent = days;
-    refs.timerHours.textContent = hours;
-    refs.timerMinutes.textContent = minutes;
-    refs.timerSecs.textContent = seconds;
-    refs.timerField.forEach(e => {
-      if (deltaTime < 1000) {
-        clearInterval(timerId);
-      }
-    });
+    timerValues(days, hours, minutes, seconds);
+    if (deltaTime < 1000) {
+      clearInterval(timerId);
+    }
   }, 1000);
+}
+
+function setDisabled(e) {
+  e.setAttribute('disabled', 'disabled');
+}
+
+function removeDisabled(e) {
+  e.removeAttribute('disabled');
 }
 
 refs.startBtn.addEventListener('click', () => {
   countTime();
-  refs.startBtn.disabled = true;
+  setDisabled(refs.startBtn);
 });
 function pad(value) {
   return value.toString().padStart(2, 0);
